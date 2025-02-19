@@ -3,6 +3,8 @@
 This project demonstrates my work in **backend web development** using **Node.js** and **Express**.
 The application handles user registration, authentication, and serves dynamic content through an **EJS** templating engine.
 
+*This project is still a work in progress. I'm actively developing and improving it, so feel free to check back for updates.* ✨
+
 ## Features 🔧:
 - **Backend**: Built with **Node.js** and **Express** to handle HTTP requests, routing, and business logic.
 - **User Registration**: Implements form validation for user input, ensuring that usernames and passwords meet specific criteria.
@@ -26,3 +28,4 @@ git clone https://github.com/molii566/blog-post-web-backend.git
 cd blog-post-web-backend
 npm install express
 npm install nodemon
+npm start
