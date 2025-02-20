@@ -69,6 +69,14 @@ app.post("/register", (req, res) => {
 
   //give user cookie to login
 
+    res.cookie("mysimpleapp", "supervalue",{
+    httpOnly: true ,
+    secure: true ,
+    sameSite:"strict",
+    maxAge: 1000 * 60 * 60 * 24
+    
+    })
+
     res.send("User registered");
 
     
