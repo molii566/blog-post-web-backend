@@ -1,3 +1,5 @@
+require("dotenv").config()
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const express = require("express");
 const db = require("better-sqlite3")("database.db")
@@ -66,10 +68,11 @@ app.post("/register", (req, res) => {
     const hash = bcrypt.hashSync(req.body.password, salt);
     const stmt = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
     stmt.run(req.body.username, hash);
-
+    const lookupstmt = db.prepare("SELECT * FROM users WHERE username = ?");
+    const ouruser = lookupstmt.get(req.body.username);
   //give user cookie to login
-
-    res.cookie("mysimpleapp", "supervalue",{
+    const ourtoken = jwt.sign({exp:Math.floor(Date.now() / 1000) + 60 *60 * 24 ,skycolor:"blue" , userid: ouruser.id ,username:ouruser.username} ,process.env.JWTSECRET);
+    res.cookie("mysimpleapp",ourtoken,{
     httpOnly: true ,
     secure: true ,
     sameSite:"strict",
