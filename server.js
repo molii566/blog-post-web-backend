@@ -1,4 +1,20 @@
+const bcrypt = require("bcrypt");
 const express = require("express");
+const db = require("better-sqlite3")("database.db")
+db.pragma("journal_mode = WAL");
+// database starts here
+const createTables = db.transaction(() => {
+    db.prepare(
+        `
+        CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        username STRING NOT NULL UNIQUE, 
+        password STRING NOT NULL)`
+    ).run()
+})
+
+createTables()
+// database ends here
 const app = express();
 
 app.set("view engine", "ejs");
@@ -46,9 +62,16 @@ app.post("/register", (req, res) => {
     } 
 
   //to save user to database
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+    const stmt = db.prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    stmt.run(req.body.username, hash);
+
   //give user cookie to login
 
-    console.log(req.body);
+    res.send("User registered");
+
+    
 });
 
 const port = 8000;
