@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,35 +11,40 @@
         <h2>
             <a href="/">Home page</a>
             <nav>
-               <h1>Welcome back</h1>
+                <h1>Welcome back</h1>
             </nav>
         </h2>
     </header>
+
     <main>
-        <form action="notice" method="post">
-        <fieldset>
-         <legend>
-           LogIn with username
-         </legend>
-         <label for="username"><small>
-             username
-         </small></label>
-         <input type="text" id="username" autocomplete="off">
-         
-         <label for="password"><small>
-             Password
-         </small></label>
-         <input type="password" id="password" autocomplete="off">
-         <br>
-         <button>login</button>
-        </fieldset>
-    </form>
-     </main>
+        <form action="/login" method="post">
+            <fieldset>
+                <legend>Log in with username</legend>
+                <label for="username"><small>Username</small></label>
+                <input type="text" id="username" name="username" autocomplete="off" required value="<%= user ? user.username : '' %>">
+
+                <label for="password"><small>Password</small></label>
+                <input type="password" id="password" name="password" autocomplete="off" required>
+
+                <!-- Displaying error messages -->
+                <% if (errors && errors.length > 0) { %>
+                    <div class="error-messages">
+                        <ul>
+                            <% errors.forEach(function(error) { %>
+                                <li><%= error %></li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                <% } %>
+
+                <br>
+                <button type="submit">Login</button>
+            </fieldset>
+        </form>
+    </main>
 
     <footer>
-        <small>
-            &copy; All Rights Reserved For MoLii
-        </small>
+        <small>&copy; All Rights Reserved For MoLii</small>
     </footer>
 </body>
 </html>
