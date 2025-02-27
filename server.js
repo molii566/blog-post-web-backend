@@ -45,8 +45,17 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-    console.log("Rendering homepage with user:", res.locals.user); // Debugging statement
-    res.render("homepage", { user: res.locals.user, errors: res.locals.errors });
+    if(req.user){
+     return res.render("dashboard");
+    }
+    res.render("homepage" );
+});
+
+app.get("/create-post", (req, res) => {
+    if (!req.user) {
+        return res.redirect("/login");
+    }
+    res.render("create-post");
 });
 
 app.get("/login", (req, res) => {

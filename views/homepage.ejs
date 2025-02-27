@@ -1,26 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
+    <%- include('includes/head') %>
 <body>
-    <header>
-        <h2>
-            <a href="/">Home page</a>
-            <nav>
-                <% if (user) { %>
-                    <a href="/create-post">Create Post</a>
-                    <a href="/logout">Logout</a>
-                <% } else { %>
-                    <a href="/login">Log in</a>
-                <% } %>
-            </nav>
-        </h2>
-    </header> 
-    
+   
+    <%-include('includes/header') %>
     <main>
     <form action="/register" method="POST">
 
@@ -46,11 +29,7 @@
        </fieldset>
        </form>
     </main>
+    <%- include('includes/footer') %>
     
-    <footer>
-        <small>
-            &copy; All Rights Reserved For MoLii
-        </small>
-    </footer>
 </body>
 </html>

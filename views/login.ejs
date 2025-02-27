@@ -1,20 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="styles.css">
+    <%- include('includes/head') %>
 </head>
 <body>
-    <header>
-        <h2>
-            <a href="/">Home page</a>
-            <nav>
-                <h1>Welcome back</h1>
-            </nav>
-        </h2>
-    </header>
+    <%- include('includes/header') %>
 
     <main>
         <form action="/login" method="post">
@@ -43,8 +33,6 @@
         </form>
     </main>
 
-    <footer>
-        <small>&copy; All Rights Reserved For MoLii</small>
-    </footer>
+    <%- include('includes/footer') %>
 </body>
 </html>
