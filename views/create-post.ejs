@@ -3,15 +3,23 @@
     <%- include('includes/head') %>
 <body>
 <header>
-    <h2>Here You  Can Create Posts</h2>
+   <h4><a href="/"><button>Homepage</button></a></h4>
+    <h4>Here You  Can Create Posts</h4>
 </header>
     
     <main>
             <h2>Welcome To The Posts</h2>
-            <h3>Here you can create a post
+            <h4>Here you can create a post
                 <br>
                 Edit or Delete Posts
-            </h3>
+            </h4>
+            <% if (errors && errors.length > 0) { %>
+                <ul>
+                    <% errors.forEach(function(error) { %>
+                        <li><%= error %></li>
+                    <% }); %>
+                </ul>
+            <% } %>
             <form action="/create-post" method="POST">
                 <fieldset>
                     <legend>
@@ -20,12 +28,12 @@
                     <label for="title"><small>
                         Title
                     </small></label>
-                    <input type="text" id="title" name="title" autocomplete="off" required>
+                    <input type="text" id="title" name="title" autocomplete="off" >
                     
                     <label for="content"><small>
                         Content
                     </small></label>
-                    <textarea id="content" name="content" autocomplete="off" required></textarea>
+                    <textarea id="content" name="content" autocomplete="off"></textarea>
                     <br>
                     <button type="submit">Create Post</button>
                 </fieldset>

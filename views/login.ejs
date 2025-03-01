@@ -4,7 +4,15 @@
     <%- include('includes/head') %>
 </head>
 <body>
-    <%- include('includes/header') %>
+    <header>
+        <h4>
+            <a href="/"><button>Homepage</button></a>
+           
+            <p>If you have account you can login here</p>
+            
+           </h4> 
+        
+    </header> 
 
     <main>
         <form action="/login" method="post">
@@ -28,9 +36,12 @@
                 <% } %>
 
                 <br>
-                <button type="submit">Login</button>
+                <button type="submit">Login</button> 
+               
             </fieldset>
         </form>
+        <h4>Don't Have One</h4>
+         <a href="/"><button>SignUp</button></a>
     </main>
 
     <%- include('includes/footer') %>
