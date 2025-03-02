@@ -1,6 +1,7 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const sanitizeHtml = require("sanitize-html");
+const sanitizeHTML = require("sanitize-html");
+const marked = require("marked");
 const bcrypt = require("bcrypt");
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -46,20 +47,29 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(function (req, res, next) {
-    res.locals.errors = [];
-
-    // decoding the incoming cookie
-    try {
-        const decoded = jwt.verify(req.cookies.mysimpleapp, process.env.JWTSECRET);
-        req.user = decoded;
-    } catch (err) {
-        req.user = false;
+    // make our markdown function available
+    res.locals.filterUserHTML = function (content) {
+      return sanitizeHTML(marked.parse(content), {
+        allowedTags: ["p", "br", "ul", "li", "ol", "strong", "bold", "i", "em", "h1", "h2", "h3", "h4", "h5", "h6"],
+        allowedAttributes: {}
+      })
     }
-    res.locals.user = req.user;
-    console.log("User:", req.user); // Debugging statement
-    next();
-});
-
+  
+    res.locals.errors = []
+  
+    // try to decode incoming cookie
+    try {
+      const decoded = jwt.verify(req.cookies.ourSimpleApp, process.env.JWTSECRET)
+      req.user = decoded
+    } catch (err) {
+      req.user = false
+    }
+  
+    res.locals.user = req.user
+    console.log(req.user)
+  
+    next()
+  })
 app.get("/", (req, res) => {
     if(req.user){
         const postsStatement = db.prepare("SELECT * FROM posts WHERE auther_id = ? ORDER BY createdDate DESC")
@@ -76,14 +86,13 @@ function mustbeloggedin(req , res , next){
     return res.redirect("/")
 }
 
-function sharedpostvalidation(req, res, next) {
+function sharedpostvalidation(req) {
     const errors = [];
     if (typeof req.body.title !== "string") req.body.title = "";
-    if (typeof req.body.body !== "string") req.body.body = "";
     if (typeof req.body.content !== "string") req.body.content = "";
 
-    req.body.title = sanitizeHtml(req.body.title.trim(), { allowedTags: [], allowedAttributes: [] });
-    req.body.content = sanitizeHtml(req.body.content.trim(), { allowedTags: [], allowedAttributes: [] });
+    req.body.title = sanitizeHTML(req.body.title.trim(), { allowedTags: [], allowedAttributes: [] });
+    req.body.content = sanitizeHTML(req.body.content.trim(), { allowedTags: [], allowedAttributes: [] });
 
     if (!req.body.title) errors.push("You must enter a title");
     if (req.body.title && req.body.title.length < 3) errors.push("Title must be more than 3 characters");
@@ -93,10 +102,7 @@ function sharedpostvalidation(req, res, next) {
     if (req.body.content && req.body.content.length < 10) errors.push("Content must be more than 10 characters");
     if (req.body.content && req.body.content.length > 500) errors.push("Content must be 500 or fewer characters");
 
-    if (errors.length) {
-        return res.render("create-post", { errors: errors });
-    }
-    next();
+    return errors
 }
 
 app.get("/create-post", mustbeloggedin, (req, res) => {
@@ -141,7 +147,51 @@ app.get("/edit-post/:id", mustbeloggedin, (req, res) => {
     // otherwise, render the edit post template
     res.render("edit-post", { post })
   })
-
+  app.post("/edit-post/:id", mustbeloggedin, (req, res) => {
+    // try to look up the post in question
+    const statement = db.prepare("SELECT * FROM posts WHERE id = ?")
+    const post = statement.get(req.params.id)
+  
+    if (!post) {
+      return res.redirect("/")
+    }
+  
+    // if you're not the author, redirect to homepage
+    if (post.auther_id !== req.user.userid) {
+      return res.redirect("/")
+    }
+  
+    const errors = sharedpostvalidation(req)
+  
+    if (errors.length) {
+      return res.render("edit-post", { errors, post })
+    }
+  
+    const updateStatement = db.prepare("UPDATE posts SET title = ?, content = ? WHERE id = ?")
+    updateStatement.run(req.body.title, req.body.content, req.params.id)
+  
+    res.redirect(`/post/${req.params.id}`)
+  })
+  
+  app.post("/delete-post/:id", mustbeloggedin, (req, res) => {
+    // try to look up the post in question
+    const statement = db.prepare("SELECT * FROM posts WHERE id = ?")
+    const post = statement.get(req.params.id)
+  
+    if (!post) {
+      return res.redirect("/")
+    }
+  
+    // if you're not the author, redirect to homepage
+    if (post.auther_id !== req.user.userid) {
+      return res.redirect("/")
+    }
+  
+    const deleteStatement = db.prepare("DELETE FROM posts WHERE id = ?")
+    deleteStatement.run(req.params.id)
+  
+    res.redirect("/")
+  })
 app.get("/login", (req, res) => {
     if (!req.user) {
         return res.render("login");
