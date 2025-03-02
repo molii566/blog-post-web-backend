@@ -50,7 +50,7 @@ Welcome to my **backend web development** project built with **Node.js** and **E
 1.  Clone the repository:
 
     ```bash
-    git clone [https://github.com/molii566/blog-post-web-backend.git](https://github.com/molii566/blog-post-web-backend.git)
+    git clone https://github.com/molii566/blog-post-web-backend.git
     cd blog-post-web-backend
     ```
 
