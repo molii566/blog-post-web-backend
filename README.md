@@ -57,7 +57,7 @@ Welcome to my **backend web development** project built with **Node.js** and **E
 2.  Install the dependencies:
 
     ```bash
-    npm install
+    npm install express ejs dotenv jsonwebtoken sanitize-html marked bcrypt cookie-parser better-sqlite3 nodemon
     ```
 
 3.  Start the server:
