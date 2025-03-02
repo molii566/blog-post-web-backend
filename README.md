@@ -3,7 +3,6 @@ Welcome to my **backend web development** project built with **Node.js** and **E
 
 
 🛠️ Features:  
-
     • 🔒 **User Authentication**: Register with a unique username and password. Passwords are **hashed** with **bcrypt** for security. Authentication via **JWT tokens** (stored in cookies) to manage user sessions.
     • 📚 **Dynamic Content**: Create, edit, and delete blog posts. Post data is stored in a **SQLite** database. Markdown support: posts are rendered with **marked** and sanitized with **sanitize-html**.
     • 🌐 **Views**: Uses **EJS** for dynamic HTML rendering.
