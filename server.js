@@ -28,8 +28,8 @@ const createTables = db.transaction(() => {
         createdDate TEXT,
         title STRING NOT NULL,
         content TEXT NOT NULL,
-        auther_id INTEGER,
-        FOREIGN KEY (auther_id) REFERENCES users (id)
+        author_id INTEGER,
+        FOREIGN KEY (author_id) REFERENCES users (id)
         )
         `
     ).run()
@@ -59,7 +59,7 @@ app.use(function (req, res, next) {
   
     // try to decode incoming cookie
     try {
-      const decoded = jwt.verify(req.cookies.ourSimpleApp, process.env.JWTSECRET)
+      const decoded = jwt.verify(req.cookies.mysimpleapp, process.env.JWTSECRET)
       req.user = decoded
     } catch (err) {
       req.user = false
@@ -72,7 +72,7 @@ app.use(function (req, res, next) {
   })
 app.get("/", (req, res) => {
     if(req.user){
-        const postsStatement = db.prepare("SELECT * FROM posts WHERE auther_id = ? ORDER BY createdDate DESC")
+        const postsStatement = db.prepare("SELECT * FROM posts WHERE author_id = ? ORDER BY createdDate DESC")
         const posts = postsStatement.all(req.user.userid)
      return res.render("dashboard" , {posts});
     }
@@ -109,20 +109,30 @@ app.get("/create-post", mustbeloggedin, (req, res) => {
     res.render("create-post");
 });
 
-app.post("/create-post", mustbeloggedin, sharedpostvalidation, (req, res) => {
+app.post("/create-post", mustbeloggedin, (req, res) => {
+    const errors = sharedpostvalidation(req);
+    
+    if (errors.length) {
+        return res.render("create-post", { errors });
+    }
 
-    // save to the database
-    const stmt = db.prepare("INSERT INTO posts (title, content, auther_id , createdDate) VALUES (?, ?, ? , ?)");
-    const result =stmt.run(req.body.title, req.body.content, req.user.userid ,new Date().toISOString());
+    try {
+        // save to the database
+        const stmt = db.prepare("INSERT INTO posts (title, content, author_id, createdDate) VALUES (?, ?, ?, ?)");
+        const result = stmt.run(req.body.title, req.body.content, req.user.userid, new Date().toISOString());
 
-    const getpoststmt = db.prepare("SELECT * FROM posts WHERE id = ?");
-    const ourpost = getpoststmt.get(result.lastInsertRowid);
+        const getpoststmt = db.prepare("SELECT * FROM posts WHERE id = ?");
+        const ourpost = getpoststmt.get(result.lastInsertRowid);
 
-    res.redirect(`/post/${ourpost.id}`);
+        return res.redirect(`/post/${ourpost.id}`);
+    } catch (error) {
+        console.error(error);
+        return res.render("create-post", { errors: ["An error occurred while creating the post"] });
+    }
 });
 
 app.get("/post/:id", (req, res) => {
-    const getpoststmt = db.prepare("SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.auther_id = users.id WHERE posts.id = ?");
+    const getpoststmt = db.prepare("SELECT posts.*, users.username FROM posts INNER JOIN users ON posts.author_id = users.id WHERE posts.id = ?");
     const ourpost = getpoststmt.get(req.params.id);
     if (!ourpost) {
         return res.redirect("/")
@@ -140,12 +150,12 @@ app.get("/edit-post/:id", mustbeloggedin, (req, res) => {
     }
   
     // if you're not the author, redirect to homepage
-    if (post.auther_id !== req.user.userid) {
+    if (post.author_id !== req.user.userid) {
       return res.redirect("/")
     }
   
     // otherwise, render the edit post template
-    res.render("edit-post", { post })
+    res.render("edit-post", { post , errors :[]})
   })
   app.post("/edit-post/:id", mustbeloggedin, (req, res) => {
     // try to look up the post in question
@@ -157,14 +167,14 @@ app.get("/edit-post/:id", mustbeloggedin, (req, res) => {
     }
   
     // if you're not the author, redirect to homepage
-    if (post.auther_id !== req.user.userid) {
+    if (post.author_id !== req.user.userid) {
       return res.redirect("/")
     }
   
     const errors = sharedpostvalidation(req)
   
     if (errors.length) {
-      return res.render("edit-post", { errors, post })
+      return res.render("edit-post", { errors})
     }
   
     const updateStatement = db.prepare("UPDATE posts SET title = ?, content = ? WHERE id = ?")
@@ -183,7 +193,7 @@ app.get("/edit-post/:id", mustbeloggedin, (req, res) => {
     }
   
     // if you're not the author, redirect to homepage
-    if (post.auther_id !== req.user.userid) {
+    if (post.author_id !== req.user.userid) {
       return res.redirect("/")
     }
   
