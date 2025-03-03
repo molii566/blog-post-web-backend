@@ -296,7 +296,7 @@ app.post("/login", (req, res) => {
     }
     const lookupstmt = db.prepare("SELECT * FROM users WHERE username = ?");
     const ouruser = lookupstmt.get(req.body.username);
-    
+
     if (!ouruser) {
         return res.render("login", { errors: ["Invalid Username / Password"] });
     }
@@ -318,6 +318,7 @@ app.post("/login", (req, res) => {
     });
     res.redirect("/");
 });
+
 
 const port = 8000;
 app.listen(port, () => {
